@@ -1,0 +1,14 @@
+.settings/*
+scheduler-web/.settings/*
+scheduler-web/src/main/resources/dashboard-web.properties
+.project
+scheduler-web/.project
+.classpath
+scheduler-web/.classpath
+
+scheduler-web/target/*
+
+
+scheduler-web/src/main/java/META-INF/*
+
+.DS_Store
