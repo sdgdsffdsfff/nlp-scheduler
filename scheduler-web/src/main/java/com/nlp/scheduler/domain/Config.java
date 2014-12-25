@@ -37,5 +37,11 @@ public class Config {
 	public void setColumnName(String columnName) {
 		this.columnName = columnName;
 	}
+	public String getGappVersion() {
+		return gappVersion;
+	}
+	public void setGappVersion(String gappVersion) {
+		this.gappVersion = gappVersion;
+	}
 	
 }
