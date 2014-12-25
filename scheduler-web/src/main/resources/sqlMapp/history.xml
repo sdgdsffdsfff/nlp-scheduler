@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nlp.scheduler.dao.HistoryDao">
+	
+	<resultMap id="historyMap" type="history">
+		<result property="id" column="id"/>                                                   
+		<result property="newsId" column="news_id"/>
+		<result property="gappVersion" column="gapp_version"/>
+		<result property="executeStartTime" column="execute_start_time"/>     
+		<result property="executeEndTime" column="execute_end_time"/>     
+		<result property="executeStatus" column="execute_status"/>     
+		<result property="executeMsg" column="execute_msg"/>     
+	</resultMap>
+    
+	<sql id="queryList">
+		id,
+		news_id,
+		gapp_version
+	</sql>
+	
+	<select id="query" parameterType="java.util.Map" resultMap="historyMap">
+		select <include refid="queryList"/> from nlp_scheduler_history
+		<where>
+			<if test="newId != null"><![CDATA[AND news_id = #{newId}]]></if>
+			<if test="gappVersion != null and gappVersion != ''"><![CDATA[AND gapp_version = #{gappVersion}]]></if>
+		</where>
+	</select>	
+	
+	<insert id="addHistory" parameterType="history" useGeneratedKeys="true" keyProperty="id">
+		<![CDATA[
+	       insert into nlp_scheduler_history(news_id,gapp_version,execute_start_time,execute_end_time,
+	       					     execute_status,execute_msg)
+	       values(#{newsId},#{gappVersion},#{executeStartTime},#{executeStartTime},
+	              #{executeStatus},#{executeMsg})
+	    ]]>
+	</insert>
+</mapper>

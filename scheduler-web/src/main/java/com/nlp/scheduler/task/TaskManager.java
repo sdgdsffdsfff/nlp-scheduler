@@ -1,11 +1,20 @@
 package com.nlp.scheduler.task;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
+import com.nlp.scheduler.dao.ConfigDao;
+import com.nlp.scheduler.dao.HistoryDao;
+import com.nlp.scheduler.domain.Config;
 
 /**
  * 任务管理对象
@@ -24,11 +33,19 @@ public final class TaskManager {
 	private int batchWorkSize;//批处理最大处理线程数
 	@Value(value="${timer_work_size}")
 	private int timerWorkSize;//实时处理最大处理线程数
+	@Value(value="${gapp_version}")
+	private String gappVersion;//gapp 版本号
 	
 	private ThreadPoolExecutor batchPool;//批量处理的线程池
 	private ThreadPoolExecutor timePool; //实时处理的线程池
 	
+	@Resource
+	private HistoryDao historyDao;
 	
+	@Resource
+	private ConfigDao configDao;
+	
+	private ConfigManager configManager;
 	/**
 	 * 通过spring配置启动
 	 */
@@ -38,6 +55,11 @@ public final class TaskManager {
 	
 	private void run (){
 		try {
+			//初始化配置信息
+			this.configManager = ConfigManager.getInstance();
+			List<Config> configs = configDao.queryAllConfig(gappVersion);
+			this.configManager.setConfig(configs);
+			
 			int batchMaxSize = this.batchWorkSize * 2;
 			int timerMaxSize = this.timerWorkSize * 2;
 			
@@ -47,8 +69,8 @@ public final class TaskManager {
 			this.batchPool = new ThreadPoolExecutor(1, this.batchWorkSize, 5, TimeUnit.SECONDS, batchQueue);
 			this.timePool = new ThreadPoolExecutor(1, this.timerWorkSize, 5, TimeUnit.SECONDS, timerQueue);
 			
-			Thread redisBatchThread = new Thread(new AddTaskThread(batchMaxSize, this, 1));
-			Thread redisTimerThread = new Thread(new AddTaskThread(timerMaxSize, this, 2));
+			Thread redisBatchThread = new Thread(new AddTaskThread(batchMaxSize, this, 1, this.historyDao, this.configManager.getConfig()));
+			Thread redisTimerThread = new Thread(new AddTaskThread(timerMaxSize, this, 2, this.historyDao, this.configManager.getConfig()));
 			
 			redisBatchThread.start();
 			redisTimerThread.start();
@@ -159,12 +181,16 @@ final class AddTaskThread implements Runnable {
 	private int maxSize;
 	private TaskManager manager;
 	private int flag;
+	private Map<String, Map<String, Config>> config;
+	private HistoryDao historyDao;
 	Logger log = LoggerFactory.getLogger(AddTaskThread.class);
 	
-	public AddTaskThread(int maxSize, TaskManager manager, int flag) {
+	public AddTaskThread(int maxSize, TaskManager manager, int flag ,HistoryDao historyDao, Map<String, Map<String, Config>> config) {
 		this.maxSize = maxSize;
 		this.manager = manager;
 		this.flag = flag;
+		this.historyDao = historyDao;
+		this.config = config;
 	}
 	
 	@Override
@@ -178,7 +204,7 @@ final class AddTaskThread implements Runnable {
 					//添加批处理数据到队列
 					if (batchSize < this.maxSize) {
 						for(int i = this.maxSize; i>batchSize ; i--){
-							Task task = new ParseGappTask(1);
+							Task task = new ParseGappTask(1, this.historyDao, this.config);
 							this.manager.addTask(task, flag);
 						}
 					}
@@ -187,7 +213,7 @@ final class AddTaskThread implements Runnable {
 					log.info("add timertask to queue, current queue size:"+timerSize+", maxSize:"+this.maxSize);
 					if (timerSize < this.maxSize){
 						for(int i = this.maxSize; i>timerSize ; i--){
-							Task task = new ParseGappTask(1);
+							Task task = new ParseGappTask(1, this.historyDao, this.config);
 							this.manager.addTask(task, flag);
 						}
 					}

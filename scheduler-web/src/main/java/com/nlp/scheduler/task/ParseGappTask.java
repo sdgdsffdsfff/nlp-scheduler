@@ -1,7 +1,12 @@
 package com.nlp.scheduler.task;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.nlp.scheduler.dao.HistoryDao;
+import com.nlp.scheduler.domain.Config;
 
 public class ParseGappTask implements Task{
 
@@ -12,9 +17,14 @@ public class ParseGappTask implements Task{
 	
 	private int newId ;
 	private int status;
+	private Map<String, Map<String, Config>> config;
+	private HistoryDao historyDao;
+	private Exception ex;
 	
-	public ParseGappTask(int newId){
+	public ParseGappTask(int newId, HistoryDao historyDao, Map<String, Map<String, Config>> config){
 		this.newId = newId;
+		this.historyDao = historyDao;
+		this.config = config;
 	}
 	
 	@Override
