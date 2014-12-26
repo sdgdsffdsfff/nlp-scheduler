@@ -18,12 +18,14 @@
 	<typeAliases>
 		<typeAlias type="com.nlp.scheduler.domain.Config" alias="config"/>
 		<typeAlias type="com.nlp.scheduler.domain.History" alias="history"/>
+		<typeAlias type="com.nlp.scheduler.domain.Feature" alias="feature"/>
 	</typeAliases>
 
 	<!-- 映射文件路径 -->
 	<mappers>
 		<mapper resource="sqlMapp/config.xml"/>
 		<mapper resource="sqlMapp/history.xml"/>
+		<mapper resource="sqlMapp/feature.xml"/>
 	</mappers>
 	
 </configuration>

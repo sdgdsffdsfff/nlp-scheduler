@@ -31,6 +31,13 @@ public interface Task {
 	 * @param status
 	 */
 	public void setTaskStatus(int status) ;
+	
+	/**
+	 * 设置异常信息
+	 * @param ex
+	 */
+	public void setException(Exception ex);
+	
 	/**
 	 * 获取任务的表述
 	 * @return

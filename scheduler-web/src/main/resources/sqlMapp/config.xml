@@ -26,10 +26,7 @@
 	<select id="selectConfig" parameterType="java.lang.String" resultMap="configMap">
 		<![CDATA[select]]>
 		<include refid="QUERY_COLUMN_LIST"/>
-		<![CDATA[from nlp_scheduler_config]]>
-		<where>
-			<if test="gappVersion != null and gappVersion != ''"><![CDATA[AND gapp_version = #{val}]]></if>
-		</where>
+		<![CDATA[from nlp_scheduler_config where gapp_version = #{val}]]>
 	</select>
 	
 </mapper>
