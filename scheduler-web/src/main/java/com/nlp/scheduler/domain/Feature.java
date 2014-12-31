@@ -14,6 +14,15 @@ public class Feature {
 	private String table;//表名称
 	private String column;//列名称
 	private String sql;
+	private String type;
+	
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public String getType() {
+		return type;
+	}
 	
 	public String getSql() {
 		return sql;

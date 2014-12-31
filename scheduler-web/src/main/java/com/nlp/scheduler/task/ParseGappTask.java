@@ -86,10 +86,10 @@ public class ParseGappTask implements Task{
 				StringBuffer sql = new StringBuffer();
 				sql.append("insert into ").append(feature.getTable());
 				sql.append("(");
-				sql.append("news_id,nlp_history_id,feature,").append(feature.getColumn());
+				sql.append("type,news_id,nlp_history_id,feature,").append(feature.getColumn());
 				sql.append(")");
 				sql.append("values").append("(");
-				sql.append(this.newId).append(",").append(history.getId()).append(",").append("'"+feature.getFeature()+"'").append(",").append("'"+feature.getVal()+"'");
+				sql.append(feature.getType()).append(",").append(this.newId).append(",").append(history.getId()).append(",").append("'"+feature.getFeature()+"'").append(",").append("'"+feature.getVal()+"'");
 				sql.append(")");
 				
 				try {
@@ -146,9 +146,14 @@ public class ParseGappTask implements Task{
 			Document dom = (Document) iter.next();
 	    	AnnotationSet annotationSet =  dom.getAnnotations();
 	    	
+	    	Iterator<Annotation> it = annotationSet.iterator();
+	    	if (null == it){
+	    		log.warn("According to the configuration does not need to output");
+    			continue;
+	    	}
 	    	//遍历所有type进行处理
-	    	for(int i=0;i<annotationSet.size();i++){
-	    		Annotation annotation = annotationSet.get(i);
+	    	while(it.hasNext()){
+	    		Annotation annotation = it.next();
 	    		if (null == annotation){
 	    			continue;
 	    		}
@@ -186,6 +191,7 @@ public class ParseGappTask implements Task{
 	    			Config featureConf = featureConfigs.get(key);
 	    			
 	    			Feature featureDomain = new Feature();
+	    			featureDomain.setType(type);
 	    			featureDomain.setFeature(key);
 	    			featureDomain.setVal(val);
 	    			featureDomain.setTable(featureConf.getTableName());
