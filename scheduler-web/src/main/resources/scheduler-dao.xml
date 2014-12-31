@@ -18,13 +18,13 @@
 		<property name="password" value="${db_password}" />
 		<property name="idleConnectionTestPeriodInMinutes" value="10" />
 		<property name="idleMaxAgeInMinutes" value="240" />
-		<property name="maxConnectionsPerPartition" value="5" />
-		<property name="minConnectionsPerPartition" value="1" />
+		<property name="maxConnectionsPerPartition" value="${db_maxconnection}" />
+		<property name="minConnectionsPerPartition" value="${db_minconnection}" />
 		<property name="partitionCount" value="1" />
 		<property name="acquireIncrement" value="2" />
 		<property name="statementsCacheSize" value="20" />
 		<property name="releaseHelperThreads" value="3" />
-		<property name="connectionTimeoutInMs" value="5000" />
+		<property name="connectionTimeoutInMs" value="10000" />
 	</bean>
 	
 	<!-- MyBits 的SessionFactory -->

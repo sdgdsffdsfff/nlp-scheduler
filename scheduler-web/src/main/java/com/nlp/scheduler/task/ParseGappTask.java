@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class ParseGappTask implements Task{
 	private String gappVersion;//gapp版本号
 	private String url;//文章访问地址
 	private Date startTime;
-	private List<Feature> features;
+	private List<List<Feature>> features;
 	
 	private boolean isExecute = false;//文章是否已经处理过了
 	
@@ -55,7 +56,7 @@ public class ParseGappTask implements Task{
 		this.featureDao = featureDao;
 		this.url = url+newId;
 		this.gappVersion = gappVersion;
-		this.features = new ArrayList<Feature>();
+		this.features = new ArrayList<List<Feature>>();
 	}
 	
 	@Override
@@ -82,26 +83,71 @@ public class ParseGappTask implements Task{
 		
 		//开始插入标签数据
 		if(null != this.features && this.features.size() >0 ){
-			for (Feature feature : this.features){
-				StringBuffer sql = new StringBuffer();
-				sql.append("insert into ").append(feature.getTable());
-				sql.append("(");
-				sql.append("type,news_id,nlp_history_id,feature,").append(feature.getColumn());
-				sql.append(")");
-				sql.append("values").append("(");
-				sql.append(feature.getType()).append(",").append(this.newId).append(",").append(history.getId()).append(",").append("'"+feature.getFeature()+"'").append(",").append("'"+feature.getVal()+"'");
-				sql.append(")");
+			
+			for (List<Feature> features : this.features){
 				
-				try {
-					this.featureDao.insertFeature(sql.toString());
-				} catch (Exception e) {
-					log.error("insert feature sql:"+sql.toString()+", fail:",e);
+				
+				
+				Map<String, String> tablesMapp = tables(features);
+				Iterator<String> tables = tablesMapp.keySet().iterator();
+				while (tables.hasNext()){
+					String table = tables.next();
+					StringBuffer InsertSql = new StringBuffer();
+					InsertSql.append("insert into ").append(table);
+					InsertSql.append("(type,news_id,nlp_history_id,feature,");
+					
+					StringBuffer valuesSql = new StringBuffer("values(");
+					
+					for(int i=0;i<features.size();i++){
+						Feature feature = features.get(i);
+						if (!table.equals(feature.getTable())){
+							continue;
+						}
+						
+						if (i ==0 ){//第一个
+							InsertSql.append(feature.getColumn()).append(",");
+							valuesSql.append("'"+feature.getType()+"',").append(feature.getNewsId()).append(",").append(feature.getHistoryId()).append(",").append("'"+feature.getFeature()+"',").append("'"+feature.getVal()+"',");
+						}else if (i == features.size()-1){//最后一个
+							InsertSql.append(feature.getColumn());
+							valuesSql.append("'"+feature.getVal()+"'");
+						}else{
+							InsertSql.append(feature.getColumn()).append(",");
+							valuesSql.append("'"+feature.getVal()+"',");
+						}
+					}
+					InsertSql.append(")");
+					valuesSql.append(")");
+					StringBuffer sql = new StringBuffer();
+					sql.append(InsertSql.toString()).append(valuesSql.toString());
+					try {
+						this.featureDao.insertFeature(sql.toString());
+					} catch (Exception e) {
+						log.error("insert feature sql:"+sql.toString()+", fail:",e);
+					}
+					
+					
 				}
-				
 			}
 		}
 		
 		
+	}
+	
+	/**
+	 * 判断这些features需要存储的表名称
+	 * @param fratures
+	 * @return
+	 */
+	private Map<String, String> tables(List<Feature> fratures) {
+		Map<String, String> tables = new HashMap<String, String>();
+		if (null != features && features.size()>0){
+			for(Feature feature:fratures){
+				if(!tables.containsKey(feature.getTable())){
+					tables.put(feature.getTable(), feature.getTable());
+				}
+			}
+		}
+		return tables;
 	}
 	
 	@Override
@@ -173,6 +219,7 @@ public class ParseGappTask implements Task{
 	    		
 	    		//遍历所有的features进行输出
 	    		Iterator<Object> featureKeys = featureMap.keySet().iterator();
+	    		List<Feature> fs = new ArrayList<Feature>();
 	    		while(featureKeys.hasNext()){
 	    			Object keyObj = featureKeys.next();
 	    			Object valObj = featureMap.get(keyObj);
@@ -197,11 +244,9 @@ public class ParseGappTask implements Task{
 	    			featureDomain.setTable(featureConf.getTableName());
 	    			featureDomain.setColumn(featureConf.getColumnName());
 	    			featureDomain.setNewsId(this.newId);
-	    			
-	    			this.features.add(featureDomain);
-	    			
+	    			fs.add(featureDomain);
 	    		}
-	    		
+	    		this.features.add(fs);
 	    	}
 		}
 		
