@@ -93,8 +93,8 @@ public final class TaskManager {
 			List<Config> configs = configDao.queryAllConfig(gappVersion);
 			this.configManager.setConfig(configs);
 			
-			int batchMaxSize = this.batchWorkSize * 2;
-			int timerMaxSize = this.timerWorkSize * 2;
+			int batchMaxSize = this.batchWorkSize * 5000;
+			int timerMaxSize = this.timerWorkSize * 5000;
 			
 			LinkedBlockingQueue<Runnable> batchQueue = new LinkedBlockingQueue<Runnable>(batchMaxSize); 
 			LinkedBlockingQueue<Runnable> timerQueue = new LinkedBlockingQueue<Runnable>(timerMaxSize);
@@ -271,8 +271,8 @@ final class AddTaskThread implements Runnable {
 					log.info("add batchtask to queue, current queue size:"+batchSize+", maxSize:"+this.maxSize);
 					//添加批处理数据到队列
 					if (batchSize < this.maxSize) {
-						for(int i = this.maxSize; i>batchSize ; i--){
-							String pop_newId = this.redis.opsForList().leftPop(this.redisKey);
+						for(int i = 0; i<5 ; i++){
+							String pop_newId = this.redis.opsForList().rightPop(this.redisKey);
 							try {
 								int newId = Integer.parseInt(pop_newId);
 								Task task = new ParseGappTask(newId, this.historyDao, this.config, this.annieController, this.featureDao, this.url, this.gappVersion);
@@ -287,8 +287,8 @@ final class AddTaskThread implements Runnable {
 					int timerSize = this.manager.getTimerQueueSize();
 					log.info("add timertask to queue, current queue size:"+timerSize+", maxSize:"+this.maxSize);
 					if (timerSize < this.maxSize){
-						for(int i = this.maxSize; i>timerSize ; i--){
-							String pop_newId = this.redis.opsForList().leftPop(this.redisKey);
+						for(int i = 0; i<5 ; i++){
+							String pop_newId = this.redis.opsForList().rightPop(this.redisKey);
 							try {
 								int newId = Integer.parseInt(pop_newId);
 								Task task = new ParseGappTask(newId, this.historyDao, this.config, this.annieController, this.featureDao, this.url, this.gappVersion);
@@ -302,7 +302,7 @@ final class AddTaskThread implements Runnable {
 					
 				}
 				
-				Thread.sleep(2000);
+				Thread.sleep(5000);
 			} catch (Exception e) {
 				log.error("redis pop key:"+this.redisKey+" and add task fail.", e);
 			}

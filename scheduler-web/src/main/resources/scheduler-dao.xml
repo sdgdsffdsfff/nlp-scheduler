@@ -59,9 +59,9 @@
         <property name="usePool" value="true"></property>  
         <property name="hostName" value="${redis.host}" />  
         <property name="port" value="${redis.port}" />  
-        <property name="password" value="${redis.pass}" />  
+        <!-- <property name="password" value="${redis.pass}" /> -->  
         <property name="timeout" value="${redis.timeout}" />  
-        <property name="database" value="${redis.default.db}"></property>  
+        <property name="database" value="${redis.default.db}" />
         <constructor-arg index="0" ref="jedisPoolConfig" />  
     </bean>  
       

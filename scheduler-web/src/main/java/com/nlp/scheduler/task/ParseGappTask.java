@@ -81,12 +81,12 @@ public class ParseGappTask implements Task{
 			return ;
 		}
 		
+		int historyId = history.getId();
+		System.out.println("===============================>historyId:"+historyId);
 		//开始插入标签数据
 		if(null != this.features && this.features.size() >0 ){
 			
 			for (List<Feature> features : this.features){
-				
-				
 				
 				Map<String, String> tablesMapp = tables(features);
 				Iterator<String> tables = tablesMapp.keySet().iterator();
@@ -94,10 +94,11 @@ public class ParseGappTask implements Task{
 					String table = tables.next();
 					StringBuffer InsertSql = new StringBuffer();
 					InsertSql.append("insert into ").append(table);
-					InsertSql.append("(type,news_id,nlp_history_id,feature,");
-					
+					InsertSql.append("(news_id,nlp_history_id,");
 					StringBuffer valuesSql = new StringBuffer("values(");
 					
+					StringBuffer existsSql = new StringBuffer();
+					existsSql.append("select 1 from ").append(table).append(" where ");
 					for(int i=0;i<features.size();i++){
 						Feature feature = features.get(i);
 						if (!table.equals(feature.getTable())){
@@ -105,12 +106,15 @@ public class ParseGappTask implements Task{
 						}
 						
 						if (i ==0 ){//第一个
+							existsSql.append(feature.getColumn()).append("=").append("'"+feature.getVal()+"' and ");
 							InsertSql.append(feature.getColumn()).append(",");
-							valuesSql.append("'"+feature.getType()+"',").append(feature.getNewsId()).append(",").append(feature.getHistoryId()).append(",").append("'"+feature.getFeature()+"',").append("'"+feature.getVal()+"',");
+							valuesSql.append(feature.getNewsId()).append(",").append(historyId).append(",").append("'"+feature.getVal()+"',");
 						}else if (i == features.size()-1){//最后一个
+							existsSql.append(feature.getColumn()).append("=").append("'"+feature.getVal()+"' ");
 							InsertSql.append(feature.getColumn());
 							valuesSql.append("'"+feature.getVal()+"'");
 						}else{
+							existsSql.append(feature.getColumn()).append("=").append("'"+feature.getVal()+"' and ");
 							InsertSql.append(feature.getColumn()).append(",");
 							valuesSql.append("'"+feature.getVal()+"',");
 						}
@@ -120,7 +124,13 @@ public class ParseGappTask implements Task{
 					StringBuffer sql = new StringBuffer();
 					sql.append(InsertSql.toString()).append(valuesSql.toString());
 					try {
-						this.featureDao.insertFeature(sql.toString());
+						boolean isExists = false;//this.featureDao.isExists(existsSql.toString());
+						if (isExists){
+							log.warn("sql:"+existsSql.toString()+" is exists");
+						}else{
+							log.info("begin insert :"+sql.toString());
+							this.featureDao.insertFeature(sql.toString());
+						}
 					} catch (Exception e) {
 						log.error("insert feature sql:"+sql.toString()+", fail:",e);
 					}

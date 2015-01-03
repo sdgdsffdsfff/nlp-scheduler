@@ -19,6 +19,7 @@
 		<typeAlias type="com.nlp.scheduler.domain.Config" alias="config"/>
 		<typeAlias type="com.nlp.scheduler.domain.History" alias="history"/>
 		<typeAlias type="com.nlp.scheduler.domain.Feature" alias="feature"/>
+		<typeAlias type="com.nlp.scheduler.domain.SqlAdapter" alias="adapter"/>
 	</typeAliases>
 
 	<!-- 映射文件路径 -->

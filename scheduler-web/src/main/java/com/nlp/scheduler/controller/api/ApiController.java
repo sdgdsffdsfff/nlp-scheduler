@@ -22,7 +22,7 @@ import com.nlp.scheduler.domain.Config;
 import com.nlp.scheduler.task.ConfigManager;
 
 /**
- * 对外借口
+ * 对外接口
  * @author wei
  *
  */
@@ -37,8 +37,6 @@ public class ApiController extends BaseController{
 	
 	@Value(value="${gapp_version}")
 	private String gappVersion;//gapp 版本号
-	
-	
 	
 	/**
 	 * 动态加载配置

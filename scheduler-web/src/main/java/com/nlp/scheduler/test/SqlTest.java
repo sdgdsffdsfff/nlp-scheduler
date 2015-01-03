@@ -3,7 +3,7 @@ package com.nlp.scheduler.test;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-public class Test {
+public class SqlTest {
 
 	public static void main(String[] args) {
 		
