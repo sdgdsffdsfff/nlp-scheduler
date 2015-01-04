@@ -273,6 +273,9 @@ final class AddTaskThread implements Runnable {
 					if (batchSize < this.maxSize) {
 						for(int i = 0; i<5 ; i++){
 							String pop_newId = this.redis.opsForList().rightPop(this.redisKey);
+							if (null == pop_newId || "".equals(pop_newId)){
+								continue;
+							}
 							try {
 								int newId = Integer.parseInt(pop_newId);
 								Task task = new ParseGappTask(newId, this.historyDao, this.config, this.annieController, this.featureDao, this.url, this.gappVersion);
@@ -289,6 +292,9 @@ final class AddTaskThread implements Runnable {
 					if (timerSize < this.maxSize){
 						for(int i = 0; i<5 ; i++){
 							String pop_newId = this.redis.opsForList().rightPop(this.redisKey);
+							if (null == pop_newId || "".equals(pop_newId)){
+								continue;
+							}
 							try {
 								int newId = Integer.parseInt(pop_newId);
 								Task task = new ParseGappTask(newId, this.historyDao, this.config, this.annieController, this.featureDao, this.url, this.gappVersion);
