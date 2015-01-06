@@ -244,6 +244,7 @@ final class AddTaskThread implements Runnable {
 	private String gappVersion;
 	private StringRedisTemplate redis;
 	private String redisKey;
+	private int count =5;
 	
 	Logger log = LoggerFactory.getLogger(AddTaskThread.class);
 	
@@ -259,6 +260,10 @@ final class AddTaskThread implements Runnable {
 		this.gappVersion = gappVersion;
 		this.redis = redis;
 		this.redisKey = redisKey;
+		this.count = (this.maxSize/5000)*5;
+		if (this.count <5){
+			this.count = 5;
+		}
 	}
 	
 	@Override
@@ -271,10 +276,10 @@ final class AddTaskThread implements Runnable {
 					log.info("add batchtask to queue, current queue size:"+batchSize+", maxSize:"+this.maxSize);
 					//添加批处理数据到队列
 					if (batchSize < this.maxSize) {
-						for(int i = 0; i<5 ; i++){
+						for(int i = 0; i<this.count ; i++){
 							String pop_newId = this.redis.opsForList().rightPop(this.redisKey);
 							if (null == pop_newId || "".equals(pop_newId)){
-								continue;
+								break;
 							}
 							try {
 								int newId = Integer.parseInt(pop_newId);
@@ -290,10 +295,10 @@ final class AddTaskThread implements Runnable {
 					int timerSize = this.manager.getTimerQueueSize();
 					log.info("add timertask to queue, current queue size:"+timerSize+", maxSize:"+this.maxSize);
 					if (timerSize < this.maxSize){
-						for(int i = 0; i<5 ; i++){
+						for(int i = 0; i<this.count ; i++){
 							String pop_newId = this.redis.opsForList().rightPop(this.redisKey);
 							if (null == pop_newId || "".equals(pop_newId)){
-								continue;
+								break;
 							}
 							try {
 								int newId = Integer.parseInt(pop_newId);
