@@ -31,7 +31,7 @@
 		<![CDATA[
 	       insert into nlp_scheduler_history(news_id,gapp_version,execute_start_time,execute_end_time,
 	       					     execute_status,execute_msg)
-	       values(#{newsId},#{gappVersion},#{executeStartTime},#{executeStartTime},
+	       values(#{newsId},#{gappVersion},#{executeStartTime},#{executeEndTime},
 	              #{executeStatus},#{executeMsg})
 	    ]]>
 	</insert>
