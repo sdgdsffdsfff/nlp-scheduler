@@ -62,6 +62,9 @@ public class ParseGappTask implements Task{
 	@Override
 	public void afterExecute() throws Exception {
 		log.info("execute afterExecute");
+		if(this.isExecute){
+			return;
+		}
 		Date endTime = new Date();
 		String executeMsg = (null == this.ex)?"success":this.ex.getLocalizedMessage();
 		//首先插入历史记录
@@ -82,7 +85,6 @@ public class ParseGappTask implements Task{
 		}
 		
 		int historyId = history.getId();
-		System.out.println("===============================>historyId:"+historyId);
 		//开始插入标签数据
 		if(null != this.features && this.features.size() >0 ){
 			
@@ -180,6 +182,10 @@ public class ParseGappTask implements Task{
 	@Override
 	public void execute() throws Exception {
 		log.info("begin execute");
+		if (this.isExecute){
+			log.warn("the newsId:"+this.newId+", gapp_version:"+this.gappVersion+" Has been processed");
+			return;
+		}
 		Corpus corpus = Factory.newCorpus("StandAloneAnnie corpus");
 		URL u = new URL(this.url);
 		FeatureMap params = Factory.newFeatureMap();

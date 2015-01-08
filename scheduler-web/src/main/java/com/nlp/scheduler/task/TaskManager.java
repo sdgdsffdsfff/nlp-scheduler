@@ -165,7 +165,7 @@ public final class TaskManager {
 				this.timePool.execute(commd);
 			}
 			
-			log.info("add task:["+task.desc()+"] to queue success,");
+			log.debug("add task:["+task.desc()+"] to queue success,");
 		} catch (Exception e) {
 			log.error("addTask to queue fail.", e);
 			return false;
