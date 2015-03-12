@@ -125,16 +125,18 @@ public class ParseGappTask implements Task{
 					valuesSql.append(")");
 					StringBuffer sql = new StringBuffer();
 					sql.append(InsertSql.toString()).append(valuesSql.toString());
+					
 					try {
 						boolean isExists = false;//this.featureDao.isExists(existsSql.toString());
 						if (isExists){
 							log.warn("sql:"+existsSql.toString()+" is exists");
 						}else{
-							log.info("begin insert :"+sql.toString());
-							this.featureDao.insertFeature(sql.toString());
+							
+							log.info("begin insert :"+sql.toString().replace(",)", ")"));
+							this.featureDao.insertFeature(sql.toString().replace(",)", ")"));
 						}
 					} catch (Exception e) {
-						log.error("insert feature sql:"+sql.toString()+", fail:",e);
+						log.error("insert feature sql:"+sql.toString().replace(",)", ")")+", fail:",e);
 					}
 					
 					
@@ -256,7 +258,9 @@ public class ParseGappTask implements Task{
 	    			Feature featureDomain = new Feature();
 	    			featureDomain.setType(type);
 	    			featureDomain.setFeature(key);
-	    			featureDomain.setVal(val);
+	    			String v = val.replaceAll("'", "");
+	    			v = v.replaceAll("\"", "");
+	    			featureDomain.setVal(v);
 	    			featureDomain.setTable(featureConf.getTableName());
 	    			featureDomain.setColumn(featureConf.getColumnName());
 	    			featureDomain.setNewsId(this.newId);
