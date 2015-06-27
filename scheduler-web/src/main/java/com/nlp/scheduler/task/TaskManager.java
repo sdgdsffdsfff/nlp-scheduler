@@ -273,7 +273,7 @@ final class AddTaskThread implements Runnable {
 				log.info("begin add task to queue");
 				if (1 == flag){
 					int batchSize = this.manager.getBatchQueueSize();
-					log.info("add batchtask to queue, current queue size:"+batchSize+", maxSize:"+this.maxSize);
+					log.debug("add batchtask to queue, current queue size:"+batchSize+", maxSize:"+this.maxSize);
 					//添加批处理数据到队列
 					if (batchSize < this.maxSize) {
 						for(int i = 0; i<this.count ; i++){
@@ -293,7 +293,7 @@ final class AddTaskThread implements Runnable {
 					}
 				}else if ( 2 == flag){
 					int timerSize = this.manager.getTimerQueueSize();
-					log.info("add timertask to queue, current queue size:"+timerSize+", maxSize:"+this.maxSize);
+					log.debug("add timertask to queue, current queue size:"+timerSize+", maxSize:"+this.maxSize);
 					if (timerSize < this.maxSize){
 						for(int i = 0; i<this.count ; i++){
 							String pop_newId = this.redis.opsForList().rightPop(this.redisKey);
